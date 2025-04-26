@@ -1,5 +1,7 @@
 import os
 from flask import Flask
+
+from. import funcoes
 from. import routes
 
 def create_app(test_config=None):
@@ -28,5 +30,8 @@ def create_app(test_config=None):
 
     #Registra o blueprint criado (arquivo com rotas)
     app.register_blueprint(routes.bp)
+
+    #Registra o blueprint criado (arquivo com funcoes)
+    app.register_blueprint(funcoes.bp)
 
     return app
