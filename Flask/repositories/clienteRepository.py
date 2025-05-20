@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-#Interface for cliente repository
-# This interface defines the methods that any concrete implementation of the cliente repository must implement.
+
 class IclienteRepository(ABC):
 
     @abstractmethod

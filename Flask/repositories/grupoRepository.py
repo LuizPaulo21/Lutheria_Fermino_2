@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-#Class para interface de grupo repository
-# This interface defines the methods that any concrete implementation of the grupo repository must implement.
+
 class IgrupoRepository(ABC):
 
     @abstractmethod
