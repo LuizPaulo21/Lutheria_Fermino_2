@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Incluir Pedido - Lutheria Fermino 2.0</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            padding-top: 56px; /* Ajuste para a navbar fixa */
+        }
+        .navbar-brand {
+            font-weight: bold;
+        }
+        .dropdown-item i, .nav-link i {
+            margin-right: 8px;
+        }
+        .form-section-title {
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 0.5rem;
+        }
+        /* Para campos de 'apenas leitura' parecerem um pouco diferentes */
+        input[readonly] {
+            background-color: #e9ecef;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-hammer"></i> Lutheria Fermino 2.0
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownClientes" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-people-fill"></i> Clientes
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownClientes">
+                            <li><a class="dropdown-item" href="/cadastro_cliente.html"><i class="bi bi-plus-circle-fill"></i> Incluir</a></li>
+                            <li><a class="dropdown-item" href="/alterar_cliente.html"><i class="bi bi-pencil-fill"></i> Alterar</a></li>
+                            <li><a class="dropdown-item" href="/excluir_cliente.html"><i class="bi bi-trash-fill"></i> Excluir</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownPedidos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-box-seam-fill"></i> Pedidos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownPedidos">
+                            <li><a class="dropdown-item" href="/cadastro_pedido.html"><i class="bi bi-plus-circle-fill"></i> Incluir</a></li>
+                            <li><a class="dropdown-item" href="/alterar_pedido.html"><i class="bi bi-pencil-fill"></i> Alterar</a></li>
+                            <li><a class="dropdown-item" href="/excluir_pedido.html"><i class="bi bi-trash-fill"></i> Excluir</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownProdutos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-tags-fill"></i> Produtos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownProdutos">
+                            <li><a class="dropdown-item" href="/cadastro_produto.html"><i class="bi bi-plus-circle-fill"></i> Incluir</a></li>
+                            <li><a class="dropdown-item" href="/alterar_produto.html"><i class="bi bi-pencil-fill"></i> Alterar</a></li>
+                            <li><a class="dropdown-item" href="/excluir_produto.html"><i class="bi bi-trash-fill"></i> Excluir</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownGrupos" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-collection-fill"></i> Grupos
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownGrupos">
+                            <li><a class="dropdown-item" href="/cadastro_grupo.html"><i class="bi bi-plus-circle-fill"></i> Incluir</a></li>
+                            <li><a class="dropdown-item" href="/alterar_grupo.html"><i class="bi bi-pencil-fill"></i> Alterar</a></li>
+                            <li><a class="dropdown-item" href="/excluir_grupo.html"><i class="bi bi-trash-fill"></i> Excluir</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="bi bi-gear-fill"></i> Configurações
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+ <div class="container mt-4">
+        <header class="d-flex justify-content-between align-items-center py-3 mb-4 border-bottom">
+            <h1 class="h4"><i class="bi bi-journal-plus"></i> Incluir Novo Pedido</h1>
+            <a href="inicio.html" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
+        </header>
+
+        <main>
+            <form id="formIncluirPedido" action="/cadastrar_pedido" method="POST" novalidate>
+                <h5 class="form-section-title">Dados do Pedido</h5>
+                <div class="row">
+                    <div class="col-md-7 mb-3 position-relative">
+                        <label for="nomeCliente" class="form-label">Cliente <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nomeCliente" name="nomeCliente" placeholder="Digite para buscar o cliente..." autocomplete="off" required>
+                        <input type="hidden" id="clienteId" name="clienteId">
+                        <div id="sugestoesCliente" class="list-group search-suggestions" style="display: none;"></div>
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label for="dataPedido" class="form-label">Data do Pedido <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" id="dataPedido" name="dataPedido" required>
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-md-7 mb-3">
+                        <label class="form-label">Tipo de Pedido <span class="text-danger">*</span></label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoPedido" id="tipoConserto" value="conserto" checked>
+                                <label class="form-check-label" for="tipoConserto">Conserto</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="tipoPedido" id="tipoCompra" value="compra">
+                                <label class="form-check-label" for="tipoCompra">Compra de Item</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5 mb-3" id="campoPrazoConserto">
+                        <label for="prazoConserto" class="form-label">Prazo para Conserto</label>
+                        <input type="date" class="form-control" id="prazoConserto" name="prazoConserto">
+                    </div>
+                </div>
+
+
+                <h5 class="form-section-title">Itens do Pedido</h5>
+                <div class="row align-items-end">
+                    <div class="col-md-5 mb-3 position-relative">
+                        <label for="nomeProdutoServico" class="form-label">Produto/Serviço <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nomeProdutoServico" name="nomeProdutoServico" placeholder="Digite para buscar o produto/serviço..." autocomplete="off" required>
+                        <input type="hidden" id="produtoId" name="produtoId">
+                        <div id="sugestoesProduto" class="list-group search-suggestions" style="display: none;"></div>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="quantidade" class="form-label">Quantidade <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="quantidade" name="quantidade" value="1" min="1" required>
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="valorUnitario" class="form-label">Valor Unit. (R$) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" id="valorUnitario" name="valorUnitario" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="valorTotalItem" class="form-label">Valor Total do Item (R$)</label>
+                        <input type="text" class="form-control" id="valorTotalItem" name="valorTotalItem" placeholder="0.00" readonly>
+                    </div>
+                </div>
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end">
+                    <button type="button" class="btn btn-outline-secondary me-2" onclick="window.location.href='index.html'">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle-fill"></i> Salvar Pedido
+                    </button>
+                </div>
+            </form>
+        </main>
+
+        <footer class="pt-3 mt-4 text-muted border-top">
+            &copy; 2024-2025 Lutheria Fermino
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- VALORES INICIAIS E UTILITÁRIOS ---
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('dataPedido').value = today;
+
+            const nomeClienteInput = document.getElementById('nomeCliente');
+            const clienteIdInput = document.getElementById('clienteId');
+            const sugestoesClienteDiv = document.getElementById('sugestoesCliente');
+
+            const nomeProdutoInput = document.getElementById('nomeProdutoServico');
+            const produtoIdInput = document.getElementById('produtoId');
+            const sugestoesProdutoDiv = document.getElementById('sugestoesProduto');
+            const valorUnitarioInput = document.getElementById('valorUnitario');
+
+            const quantidadeInput = document.getElementById('quantidade');
+            const valorTotalItemInput = document.getElementById('valorTotalItem');
+
+            const tipoConsertoRadio = document.getElementById('tipoConserto');
+            const tipoCompraRadio = document.getElementById('tipoCompra');
+            const campoPrazoConsertoDiv = document.getElementById('campoPrazoConserto');
+            const prazoConsertoInput = document.getElementById('prazoConserto');
+
+            // --- DADOS MOCADOS (SIMULAÇÃO DE BANCO DE DADOS) ---
+            const clientesMock = [
+                { id: 1, nome: 'João da Silva Musico (CPF: 123.456.789-00)', infoAdicional: 'Cliente VIP' },
+                { id: 2, nome: 'Maria Oliveira Cantora (CPF: 987.654.321-00)', infoAdicional: 'Prefere contato por email' },
+                { id: 3, nome: 'Estúdio GravaSom Ltda (CNPJ: 12.345.678/0001-99)', infoAdicional: 'Pagamento faturado' },
+                { id: 4, nome: 'Pedro Almeida Guitarrista (CPF: 111.222.333-44)', infoAdicional: 'Indicado por João' }
+            ];
+
+            const produtosMock = [
+                { id: 101, nome: 'Regulagem Completa de Guitarra', valor: 150.00, tipo: 'servico' },
+                { id: 102, nome: 'Troca de Trastes (Violão/Guitarra)', valor: 350.00, tipo: 'servico' },
+                { id: 103, nome: 'Conserto Circuito Elétrico', valor: 120.00, tipo: 'servico' },
+                { id: 201, nome: 'Jogo de Cordas D\'Addario EXL110 (Guitarra)', valor: 65.00, tipo: 'produto' },
+                { id: 202, nome: 'Cabo P10 Santo Angelo Ninja 3m', valor: 89.00, tipo: 'produto' },
+                { id: 203, nome: 'Palheta Dunlop Tortex 0.73mm (Unidade)', valor: 3.50, tipo: 'produto' }
+            ];
+
+            // --- FUNÇÕES DE BUSCA E AUTOCOMPLETE ---
+            function popularSugestoes(termo, dados, inputElement, idElement, divSugestoes, callbackSelecao) {
+                divSugestoes.innerHTML = '';
+                if (termo.length < 2) {
+                    divSugestoes.style.display = 'none';
+                    idElement.value = ''; // Limpa o ID se o termo for muito curto
+                    if (inputElement === nomeProdutoInput) valorUnitarioInput.value = ''; // Limpa valor unitário
+                    calcularValorTotalItem();
+                    return;
+                }
+
+                const filtrados = dados.filter(item => item.nome.toLowerCase().includes(termo.toLowerCase()));
+
+                if (filtrados.length > 0) {
+                    divSugestoes.style.display = 'block';
+                    filtrados.forEach(item => {
+                        const itemDiv = document.createElement('a');
+                        itemDiv.href = '#';
+                        itemDiv.classList.add('list-group-item', 'list-group-item-action');
+                        itemDiv.textContent = item.nome + (item.infoAdicional ? ` (${item.infoAdicional})` : '');
+                        itemDiv.addEventListener('click', function(e) {
+                            e.preventDefault();
+                            inputElement.value = item.nome;
+                            idElement.value = item.id;
+                            divSugestoes.innerHTML = '';
+                            divSugestoes.style.display = 'none';
+                            if (callbackSelecao) {
+                                callbackSelecao(item);
+                            }
+                            // Força validação para remover erro de 'required' se houver
+                            inputElement.dispatchEvent(new Event('input'));
+                            inputElement.dispatchEvent(new Event('blur')); // para fechar e validar
+                        });
+                        divSugestoes.appendChild(itemDiv);
+                    });
+                } else {
+                    divSugestoes.style.display = 'none';
+                    idElement.value = '';
+                     if (inputElement === nomeProdutoInput) valorUnitarioInput.value = '';
+                    calcularValorTotalItem();
+                }
+            }
+
+            nomeClienteInput.addEventListener('keyup', function() {
+                popularSugestoes(this.value, clientesMock, nomeClienteInput, clienteIdInput, sugestoesClienteDiv);
+            });
+            nomeClienteInput.addEventListener('blur', function() { // Se sair do campo sem selecionar, limpa ID se nome não corresponder
+                setTimeout(() => { // Timeout para permitir clique na sugestão
+                    const clienteEncontrado = clientesMock.find(c => c.nome === this.value);
+                    if (!clienteEncontrado) {
+                        clienteIdInput.value = '';
+                        // Opcional: limpar o campo nomeClienteInput.value = ''; se desejar forçar seleção
+                    }
+                    if (sugestoesClienteDiv.style.display !== 'none' && !sugestoesClienteDiv.matches(':hover')) {
+                         sugestoesClienteDiv.style.display = 'none';
+                    }
+                }, 200);
+            });
+
+
+            nomeProdutoInput.addEventListener('keyup', function() {
+                popularSugestoes(this.value, produtosMock, nomeProdutoInput, produtoIdInput, sugestoesProdutoDiv, function(produtoSelecionado) {
+                    if (produtoSelecionado && produtoSelecionado.valor) {
+                        valorUnitarioInput.value = produtoSelecionado.valor.toFixed(2);
+                    } else {
+                        valorUnitarioInput.value = ''; // Limpa se o produto não tiver valor definido
+                    }
+                    calcularValorTotalItem();
+                    valorUnitarioInput.dispatchEvent(new Event('input')); // Para atualizar a validação
+                });
+            });
+             nomeProdutoInput.addEventListener('blur', function() {
+                setTimeout(() => {
+                    const produtoEncontrado = produtosMock.find(p => p.nome === this.value);
+                    if (!produtoEncontrado) {
+                        produtoIdInput.value = '';
+                        valorUnitarioInput.value = '';
+                    } else if (produtoEncontrado && valorUnitarioInput.value === '') { // Se selecionou mas valor unitário está vazio
+                         if (produtoEncontrado.valor) {
+                            valorUnitarioInput.value = produtoEncontrado.valor.toFixed(2);
+                        }
+                    }
+                    calcularValorTotalItem();
+                    if (sugestoesProdutoDiv.style.display !== 'none' && !sugestoesProdutoDiv.matches(':hover')) {
+                         sugestoesProdutoDiv.style.display = 'none';
+                    }
+                }, 200);
+            });
+
+            // Fechar sugestões se clicar fora
+            document.addEventListener('click', function(e) {
+                if (!sugestoesClienteDiv.contains(e.target) && e.target !== nomeClienteInput) {
+                    sugestoesClienteDiv.style.display = 'none';
+                }
+                if (!sugestoesProdutoDiv.contains(e.target) && e.target !== nomeProdutoInput) {
+                    sugestoesProdutoDiv.style.display = 'none';
+                }
+            });
+
+
+            // --- CÁLCULO DO VALOR TOTAL DO ITEM ---
+            function calcularValorTotalItem() {
+                const quantidade = parseFloat(quantidadeInput.value) || 0;
+                const valorUnitario = parseFloat(valorUnitarioInput.value) || 0;
+                const total = quantidade * valorUnitario;
+                valorTotalItemInput.value = total.toFixed(2).replace('.', ',');
+            }
+            quantidadeInput.addEventListener('input', calcularValorTotalItem);
+            valorUnitarioInput.addEventListener('input', calcularValorTotalItem);
+
+            // --- CONTROLE DO CAMPO PRAZO ---
+            function togglePrazoConserto() {
+                if (tipoConsertoRadio.checked) {
+                    campoPrazoConsertoDiv.style.display = 'block';
+                    prazoConsertoInput.setAttribute('required', 'required');
+                } else {
+                    campoPrazoConsertoDiv.style.display = 'none';
+                    prazoConsertoInput.removeAttribute('required');
+                    prazoConsertoInput.value = ''; // Limpa o valor se não for conserto
+                }
+            }
+            tipoConsertoRadio.addEventListener('change', togglePrazoConserto);
+            tipoCompraRadio.addEventListener('change', togglePrazoConserto);
+            togglePrazoConserto(); // Chama na inicialização
+
+            // --- SUBMISSÃO DO FORMULÁRIO ---
+            const formIncluirPedido = document.getElementById('formIncluirPedido');
+            formIncluirPedido.addEventListener('submit', function(event) {
+                if (!formIncluirPedido.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    // Força a exibição de mensagens de erro do Bootstrap
+                    formIncluirPedido.classList.add('was-validated');
+                    // Verifica se os campos de busca têm IDs válidos
+                    if (!clienteIdInput.value) {
+                        nomeClienteInput.setCustomValidity("Por favor, selecione um cliente da lista.");
+                        nomeClienteInput.classList.add('is-invalid');
+                    } else {
+                        nomeClienteInput.setCustomValidity("");
+                        nomeClienteInput.classList.remove('is-invalid');
+                    }
+                    if (!produtoIdInput.value) {
+                        nomeProdutoInput.setCustomValidity("Por favor, selecione um produto/serviço da lista.");
+                        nomeProdutoInput.classList.add('is-invalid');
+                    } else {
+                        nomeProdutoInput.setCustomValidity("");
+                        nomeProdutoInput.classList.remove('is-invalid');
+                    }
+                    // Adiciona a classe was-validated para mostrar feedback visual
+                    formIncluirPedido.classList.add('was-validated');
+                     alert('Por favor, corrija os erros no formulário antes de salvar.');
+                    return;
+                }
+                // Se passou na validação HTML5 e campos de busca estão OK
+                nomeClienteInput.setCustomValidity("");
+                nomeProdutoInput.setCustomValidity("");
+                formIncluirPedido.classList.add('was-validated');
+
+
+                event.preventDefault(); // Previne o envio real para simulação
+                const formData = new FormData(formIncluirPedido);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+
+                // Garante que IDs estão corretos
+                data['clienteId'] = clienteIdInput.value;
+                data['produtoId'] = produtoIdInput.value;
+
+
+                // Converte valores numéricos
+                data['quantidade'] = parseFloat(data['quantidade']);
+                data['valorUnitario'] = parseFloat(data['valorUnitario'] ? data['valorUnitario'].replace(',', '.') : 0);
+                data['valorTotalItem'] = parseFloat(data['valorTotalItem'] ? data['valorTotalItem'].replace(',', '.') : 0);
+                if (data.tipoPedido !== 'conserto') {
+                    delete data.prazoConserto; // Remove prazo se não for conserto
+                }
+
+                console.log('Dados do Pedido a serem enviados:', data);
+                alert('Pedido salvo com sucesso! (Verifique o console para os dados)');
+
+                // Resetar o formulário (opcional)
+                // formIncluirPedido.reset();
+                // formIncluirPedido.classList.remove('was-validated');
+                // document.getElementById('dataPedido').value = today;
+                // togglePrazoConserto();
+                // calcularValorTotalItem();
+                // clienteIdInput.value = '';
+                // produtoIdInput.value = '';
+                // valorUnitarioInput.value = '';
+            });
+
+            // Limpar validade customizada ao digitar
+            nomeClienteInput.addEventListener('input', () => {
+                nomeClienteInput.setCustomValidity('');
+                nomeClienteInput.classList.remove('is-invalid');
+            });
+            nomeProdutoInput.addEventListener('input', () => {
+                nomeProdutoInput.setCustomValidity('');
+                nomeProdutoInput.classList.remove('is-invalid');
+                 // Limpa valor unitário se o nome do produto for alterado manualmente
+                if(!produtosMock.find(p => p.nome === nomeProdutoInput.value)) {
+                    valorUnitarioInput.value = '';
+                    produtoIdInput.value = ''; // Limpa ID também
+                    calcularValorTotalItem();
+                }
+            });
+
+
+        });
+    </script>
+</body>
+</html>

@@ -49,10 +49,10 @@ def login():
         session['username']=usuario['usuario']
 
         # Redireciona ao inicio do sistema
-        return render_template("base.html")
+        return render_template("inicio.html")
     else:
         msg = "Usuario ou senha incorretos!"
 
-    return render_template('index.html', msg=msg)
+    return render_template('inicio.html', msg=msg)
 
 
