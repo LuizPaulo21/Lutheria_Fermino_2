@@ -94,7 +94,7 @@
         </header>
 
         <main>
-            <form id="formIncluirCliente">
+            <form id="formIncluirCliente" action="/create_cliente" method="POST">
                 <h5 class="form-section-title">Tipo de Cliente</h5>
                 <div class="mb-3">
                     <div class="form-check form-check-inline">
@@ -223,6 +223,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle-fill"></i> Salvar Cliente
                     </button>
+                    <div>{{msg}}</div>
                 </div>
             </form>
         </main>
@@ -233,7 +234,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+    <!-- O Script abaixo cuida para que o formulário exiba os campos necessários dependendo se se trata de um CPF ou um CNPJ -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const tipoPessoaFisicaRadio = document.getElementById('tipoPessoaFisica');
@@ -249,7 +250,7 @@
             const cnpjInput = document.getElementById('cnpj');
             const razaoSocialInput = document.getElementById('razaoSocial');
             const nomeFantasiaInput = document.getElementById('nomeFantasia');
-
+            // Função para alternar entre os campos de Pessoa Física e Pessoa Jurídica
             function toggleCamposCliente() {
                 if (tipoPessoaFisicaRadio.checked) {
                     dadosPessoaFisicaDiv.style.display = 'block';

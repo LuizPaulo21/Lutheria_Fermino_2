@@ -56,3 +56,54 @@ def login():
     return render_template('inicio.html', msg=msg)
 
 
+@bp.route('/create_cliente', methods=['POST'])
+def create_cliente():
+    # Verifica se o método da requisição é POST e se os campos necessários foram preenchidos
+    if request.method == 'POST' and 'nome' in request.form and 'cpf' in request.form and 'email' in request.form:
+        nome = request.form.get('nomeCompleto')
+        cpf = request.form.get('cpf')
+        email = request.form.get('email')
+        cnpj = request.form.get('cnpj')
+        razaoSocial = request.form.get('razaoSocial')
+        nomeFantasia = request.form.get('nomeFantasia')
+        endereco = request.form.get('endereco')
+        cep = request.form.get('cep')
+        bairro = request.form.get('bairro')
+        cidade = request.form.get('cidade')
+        estado = request.form.get('estado')
+
+        # Cria uma conexão ao MongoDB
+        db = "LutheriaFermino2"
+        collection = "clientes"  
+        cliente = MongoClient(uri, server_api=ServerApi('1'))
+        collection = cliente[db][collection]
+
+        #Insere o dicionário recebido no banco de dados
+        cliente = {
+            "nome": nome,
+            "cpf": cpf,
+            "email": email,
+            "cnpj": cnpj,
+            "razaoSocial": razaoSocial,
+            "nomeFantasia": nomeFantasia,
+            "endereco": endereco,
+            "cep": cep,
+            "bairro": bairro,  
+            "cidade": cidade,
+            "estado": estado, 
+        }
+
+        
+        # Insere o cliente no banco de dados
+        resultado = collection.insert_one(cliente)
+        
+        if resultado.acknowledged:
+            # Se a inserção for bem-sucedida, exibe uma mensagem de sucesso
+            msg = "Cliente cadastrado com sucesso!"
+            return render_template('cadastro_cliente.html', msg=msg)
+        else:
+            msg = "Algo deu errado, tente novamente!"
+            # Se o método não for POST ou os campos não estiverem preenchidos, exibe uma mensagem de erro
+            return render_template('cadastro_cliente.html', msg=msg)
+        
+    
