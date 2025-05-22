@@ -181,8 +181,8 @@
                     </div>
                     <div class="col-md-1 mb-3">
                         <label for="uf" class="form-label">UF</label>
-                        <select class="form-select" id="uf" name="uf">
-                            <option selected disabled value="">--</option>
+                        <select class="form-select" id="uf" name="uf" required>
+                            <option selected disabled value="" >--</option>
                             <option value="AC">AC</option>
                             <option value="AL">AL</option>
                             <option value="AP">AP</option>
@@ -215,15 +215,14 @@
                 </div>
 
                 <hr class="my-4">
-
                 <div class="d-flex justify-content-end">
+                    <div class="alert">{{msg}}</div>
                     <button type="button" class="btn btn-outline-secondary me-2">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </button>
                     <button type="submit" class="btn btn-primary">
                         <i class="bi bi-check-circle-fill"></i> Salvar Cliente
                     </button>
-                    <div>{{msg}}</div>
                 </div>
             </form>
         </main>
@@ -234,73 +233,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <!-- O Script abaixo cuida para que o formulário exiba os campos necessários dependendo se se trata de um CPF ou um CNPJ -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const tipoPessoaFisicaRadio = document.getElementById('tipoPessoaFisica');
-            const tipoPessoaJuridicaRadio = document.getElementById('tipoPessoaJuridica');
-            const dadosPessoaFisicaDiv = document.getElementById('dadosPessoaFisica');
-            const dadosPessoaJuridicaDiv = document.getElementById('dadosPessoaJuridica');
-
-            // Inputs Pessoa Física
-            const cpfInput = document.getElementById('cpf');
-            const nomeCompletoInput = document.getElementById('nomeCompleto');
-
-            // Inputs Pessoa Jurídica
-            const cnpjInput = document.getElementById('cnpj');
-            const razaoSocialInput = document.getElementById('razaoSocial');
-            const nomeFantasiaInput = document.getElementById('nomeFantasia');
-            // Função para alternar entre os campos de Pessoa Física e Pessoa Jurídica
-            function toggleCamposCliente() {
-                if (tipoPessoaFisicaRadio.checked) {
-                    dadosPessoaFisicaDiv.style.display = 'block';
-                    dadosPessoaJuridicaDiv.style.display = 'none';
-                    // Limpa e desabilita campos PJ se necessário
-                    cnpjInput.value = '';
-                    razaoSocialInput.value = '';
-                    nomeFantasiaInput.value = '';
-                } else {
-                    dadosPessoaFisicaDiv.style.display = 'none';
-                    dadosPessoaJuridicaDiv.style.display = 'block';
-                    // Limpa e desabilita campos PF se necessário
-                    cpfInput.value = '';
-                    nomeCompletoInput.value = '';
-                }
-            }
-
-            tipoPessoaFisicaRadio.addEventListener('change', toggleCamposCliente);
-            tipoPessoaJuridicaRadio.addEventListener('change', toggleCamposCliente);
-
-            // Inicializa a visibilidade correta
-            toggleCamposCliente();
-
-            // Opcional: Lógica para busca de CEP (exemplo básico)
-            const cepInput = document.getElementById('cep');
-            if (cepInput) {
-                cepInput.addEventListener('blur', function() {
-                    const cep = this.value.replace(/\D/g, ''); // Remove não numéricos
-                    if (cep.length === 8) {
-                        // Simulação de busca de CEP
-                        console.log(`Buscando CEP: ${cep}`);
-                        // Aqui você integraria com uma API de CEP, como ViaCEP
-                        // Exemplo: fetch(`https://viacep.com.br/ws/${cep}/json/`)
-                        // .then(response => response.json())
-                        // .then(data => {
-                        //     if (!data.erro) {
-                        //         document.getElementById('logradouro').value = data.logradouro;
-                        //         document.getElementById('bairro').value = data.bairro;
-                        //         document.getElementById('cidade').value = data.localidade;
-                        //         document.getElementById('uf').value = data.uf;
-                        //     } else {
-                        //         alert('CEP não encontrado.');
-                        //     }
-                        // })
-                        // .catch(error => console.error('Erro ao buscar CEP:', error));
-                        alert('Funcionalidade de busca automática de CEP a ser implementada.\nPor favor, preencha os campos de endereço manualmente.');
-                    }
-                });
-            }
-        });
-    </script>
+    <script src=../static/buscacep.js></script>
+    <script src="../static/formulariocliente.js"></script>
 </body>
 </html>

@@ -1,7 +1,8 @@
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, jsonify
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 import hashlib, os, dotenv
+from flask import current_app
 
 bp = Blueprint("funcoes", __name__, url_prefix="/")
 
@@ -59,51 +60,65 @@ def login():
 @bp.route('/create_cliente', methods=['POST'])
 def create_cliente():
     # Verifica se o método da requisição é POST e se os campos necessários foram preenchidos
-    if request.method == 'POST' and 'nome' in request.form and 'cpf' in request.form and 'email' in request.form:
-        nome = request.form.get('nomeCompleto')
+    if request.method == 'POST':
+
+        ejuridica = bool(request.form.get('tipoPessoaJuridica'))
+
+        nome_completo = request.form.get('nomeCompleto')
         cpf = request.form.get('cpf')
         email = request.form.get('email')
         cnpj = request.form.get('cnpj')
-        razaoSocial = request.form.get('razaoSocial')
-        nomeFantasia = request.form.get('nomeFantasia')
-        endereco = request.form.get('endereco')
+        razao_social = request.form.get('razaoSocial')
+        nome_fantasia = request.form.get('nomeFantasia')
+        endereco = request.form.get('logradouro')
         cep = request.form.get('cep')
         bairro = request.form.get('bairro')
         cidade = request.form.get('cidade')
         estado = request.form.get('estado')
 
-        # Cria uma conexão ao MongoDB
-        db = "LutheriaFermino2"
-        collection = "clientes"  
-        cliente = MongoClient(uri, server_api=ServerApi('1'))
-        collection = cliente[db][collection]
+        cliente_data = {
+                "nome": nome_completo,
+                "cpf": cpf,
+                "cnpj": cnpj,
+                "razaoSocial": razao_social,
+                "nomeFantasia": nome_fantasia,
+                "email": email,
+                "cnpj": cnpj,
+                "endereco": endereco,
+                "cep": cep,
+                "bairro": bairro,  
+                "cidade": cidade,
+                "estado": estado, 
+            }
 
-        #Insere o dicionário recebido no banco de dados
-        cliente = {
-            "nome": nome,
-            "cpf": cpf,
-            "email": email,
-            "cnpj": cnpj,
-            "razaoSocial": razaoSocial,
-            "nomeFantasia": nomeFantasia,
-            "endereco": endereco,
-            "cep": cep,
-            "bairro": bairro,  
-            "cidade": cidade,
-            "estado": estado, 
-        }
-
-        
-        # Insere o cliente no banco de dados
-        resultado = collection.insert_one(cliente)
-        
-        if resultado.acknowledged:
-            # Se a inserção for bem-sucedida, exibe uma mensagem de sucesso
-            msg = "Cliente cadastrado com sucesso!"
+        # Validação mínima na rota (o Caso de Uso fará a validação completa)
+        if ejuridica:
+            msg = "Nome e E-mail são campos obrigatórios."
             return render_template('cadastro_cliente.html', msg=msg)
         else:
-            msg = "Algo deu errado, tente novamente!"
-            # Se o método não for POST ou os campos não estiverem preenchidos, exibe uma mensagem de erro
-            return render_template('cadastro_cliente.html', msg=msg)
-        
+            # Acessa o Caso de Uso
+            use_case_key = 'use_case'
+            if use_case_key not in current_app.extensions:
+                msg = "Erro crítico: Configuração de casos de uso não encontrada."
+                return render_template('cadastro_cliente.html', msg=msg)
+
+            create_cliente_uc = current_app.extensions['use_case'].get('create_cliente')
+
+            if not create_cliente_uc:
+                msg = "Erro: Serviço de criação de cliente indisponível."
+                return render_template('cadastro_cliente.html', msg=msg)
+            
+            try:
+                novo_cliente = create_cliente_uc.execute(cliente_data)
+                if novo_cliente:
+                    msg = f"Cliente '{novo_cliente.get('nome', 'N/A')}' cadastrado com sucesso!"
+                else:
+                    msg = "Erro ao cadastrar cliente. Verifique os dados ou os logs do servidor."
+            except ValueError as ve: # Captura erros de validação do Caso de Uso
+                msg = f"Erro de validação: {ve}"
+            except Exception as e:
+                current_app.logger.error(f"Exceção em create_cliente (POST): {e}", exc_info=True)
+                msg = "Ocorreu um erro inesperado ao processar sua solicitação."
     
+    # Para o método GET (exibir o formulário) ou após o POST (para mostrar a msg)
+    return render_template('cadastro_cliente.html', msg=msg)

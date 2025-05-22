@@ -10,7 +10,7 @@ login=os.getenv('user_MongoDB')
 password=os.getenv('password_MongoDB')
 uri = f"mongodb+srv://{login}:{password}@cluster0.25d5slc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-class PedidoMongoAdapter:
+class GrupoMongoAdapter:
     def __init__(self, str = "LutheriaFermino2"):
 
         self.db_name = str # Nome dob banco de dados

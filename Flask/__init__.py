@@ -1,17 +1,30 @@
 import os
 import dotenv
 from flask import Flask
-
-from repositories import clienteRepository
-from repositories import produtoRepository
-from repositories import pedidoRepository
-from repositories import grupoRepository
-
-from adapters.MongoAdapters import ClienteMongoAdapter
-from adapters.MongoAdapters import ProdutoMongoAdapter
-from adapters.MongoAdapters import PedidosMongoAdapter
-from adapters.MongoAdapters import GrupoMongoAdapter
-
+from Flask.repositories import clienteRepository
+from Flask.repositories import produtoRepository
+from Flask.repositories import pedidoRepository
+from Flask.repositories import grupoRepository
+from Flask.adapters.MongoAdapters.ClienteMongoAdapter import ClienteMongoAdapter
+from Flask.adapters.MongoAdapters.ProdutoMongoAdapter import ProdutoMongoAdapter
+from Flask.adapters.MongoAdapters.PedidosMongoAdapter import PedidosMongoAdapter
+from Flask.adapters.MongoAdapters.GrupoMongoAdapter import GrupoMongoAdapter
+from Flask.usecases.Cliente.CreateClienteUseCase import CreateClienteUseCase
+from Flask.usecases.Cliente.DeleteClienteUserCase import DeleteClienteUserCase
+from Flask.usecases.Cliente.UpdateClienteUseCase import UpdateClienteUseCase
+from Flask.usecases.Cliente.GetClienteUseCase import GetClienteUseCase
+from Flask.usecases.Pedidos.CreatePedidoUseCase import CreatePedidoUseCase
+from Flask.usecases.Pedidos.DeletePedidoUseCase import DeletePedidoUserCase
+from Flask.usecases.Pedidos.UpdatePedidoUseCase import UpdatePedidoUseCase
+from Flask.usecases.Pedidos.GetPedidoUseCase import GetPedidoUseCase
+from Flask.usecases.Produtos.CreateProdutoUseCase import CreateProdutoUseCase
+from Flask.usecases.Produtos.DeleteProdutoUseCase import DeleteProdutoUseCase
+from Flask.usecases.Produtos.UpdateProdutoUseCase import UpdateProdutoUseCase
+from Flask.usecases.Produtos.GetProdutoUseCase import GetProdutoUseCase
+from Flask.usecases.Grupo.CreateGrupoUseCase import CreateGrupoUseCase
+from Flask.usecases.Grupo.DeleteGrupoUseCase import DeleteGrupoUseCase
+from Flask.usecases.Grupo.UpdateGrupoUseCase import UpdateGrupoUseCase
+from Flask.usecases.Grupo.GetGrupoUseCase import GetGrupoUseCase
 from. import funcoes
 from. import routes
 
@@ -19,6 +32,8 @@ dotenv.load_dotenv()
 login=os.getenv('user_MongoDB')
 password=os.getenv('password_MongoDB')
 uri = f"mongodb+srv://{login}:{password}@cluster0.25d5slc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+db_nome = "LutheriaFermino2" # Nome do banco de dados
+
 
 def create_app(test_config=None):
     
@@ -53,9 +68,13 @@ def create_app(test_config=None):
     #Inicializando os adaptadores para clientes
     try:
         # ClienteMongoAdapter que implementa a interface clienteRepository
-        cliente_repository_instance: clienteRepository = ClienteMongoAdapter()
+        cliente_repository_instance: clienteRepository = ClienteMongoAdapter(db_nome)
+        create_use_case_instance = CreateClienteUseCase(cliente_repository=cliente_repository_instance)
+        delete_use_case_instance = DeleteClienteUserCase(cliente_repository=cliente_repository_instance)
+        update_use_case_instance = UpdateClienteUseCase(cliente_repository=cliente_repository_instance)
+        get_use_case_instance = GetClienteUseCase(cliente_repository=cliente_repository_instance)
         print("ClienteMongoAdapter instanciado com sucesso.")
-    except ConnectionError as e: # Supondo que seu adapter levante ConnectionError
+    except ConnectionError as e: 
         print(f"CRÍTICO: Falha ao conectar ao MongoDB na inicialização do adapter: {e}")
         cliente_repository_instance = None
     except Exception as e:
@@ -64,38 +83,76 @@ def create_app(test_config=None):
 
         #Inicializando os adaptadores para produtos
     try:
-        # ClienteMongoAdapter que implementa a interface produtoRepository
+        # ProdutoMongoAdapter que implementa a interface produtoRepository
         produto_repository_instance: produtoRepository = ProdutoMongoAdapter()
+        create_produto_use_case_instance = CreateProdutoUseCase(produto_repository=produto_repository_instance)
+        delete_produto_use_case_instance = DeleteProdutoUseCase(produto_repository=produto_repository_instance)
+        update_produto_use_case_instance = UpdateProdutoUseCase(produto_repository=produto_repository_instance)
+        get_produto_use_case_instance = GetProdutoUseCase(produto_repository=produto_repository_instance)
         print("ProdutoMongoAdapter instanciado com sucesso.")
-    except ConnectionError as e: # Supondo que seu adapter levante ConnectionError
+    except ConnectionError as e: 
         print(f"CRÍTICO: Falha ao conectar ao MongoDB na inicialização do adapter: {e}")
-        cliente_repository_instance = None
+        produto_repository_instance = None
     except Exception as e:
         print(f"CRÍTICO: Erro inesperado ao instanciar ClienteMongoAdapter: {e}")
-        cliente_repository_instance = None
+        produto_repository_instance = None
     
     #Inicializando os adaptadores para pedidos
     try:
         # ClienteMongoAdapter que implementa a interface pedidoRepository
         pedido_repository_instance: pedidoRepository = PedidosMongoAdapter()
+        create_pedido_use_case_instance = CreatePedidoUseCase(pedido_repository=pedido_repository_instance)
+        delete_pedido_use_case_instance = DeletePedidoUserCase(pedido_repository=pedido_repository_instance)
+        update_pedido_use_case_instance = UpdatePedidoUseCase(pedido_repository=pedido_repository_instance)
+        get_pedido_use_case_instance = GetPedidoUseCase(pedido_repository=pedido_repository_instance)
         print("PedidoMongoAdapter instanciado com sucesso.")
-    except ConnectionError as e: # Supondo que seu adapter levante ConnectionError
+    except ConnectionError as e: 
         print(f"CRÍTICO: Falha ao conectar ao MongoDB na inicialização do adapter: {e}")
-        cliente_repository_instance = None
+        pedido_repository_instance = None
     except Exception as e:
         print(f"CRÍTICO: Erro inesperado ao instanciar ClienteMongoAdapter: {e}")
-        cliente_repository_instance = None
+        pedido_repository_instance = None
 
     #Inicializando os adaptadores para grupos de produtos
     try:
         # ClienteMongoAdapter que implementa a interface grupoProdutoRepository
         grupo_produto_repository_instance: grupoRepository = GrupoMongoAdapter()
+        create_grupo_use_case_instance = CreateGrupoUseCase(grupo_repository=grupo_produto_repository_instance)
+        delete_grupo_use_case_instance = DeleteGrupoUseCase(grupo_repository=grupo_produto_repository_instance)
+        update_grupo_use_case_instance = UpdateGrupoUseCase(grupo_repository=grupo_produto_repository_instance)
+        get_grupo_use_case_instance = GetGrupoUseCase(grupo_repository=grupo_produto_repository_instance)
         print("GrupoProdutoMongoAdapter instanciado com sucesso.")
-    except ConnectionError as e: # Supondo que seu adapter levante ConnectionError
+    except ConnectionError as e:
         print(f"CRÍTICO: Falha ao conectar ao MongoDB na inicialização do adapter: {e}")
-        cliente_repository_instance = None
+        grupo_produto_repository_instance = None
     except Exception as e:
         print(f"CRÍTICO: Erro inesperado ao instanciar ClienteMongoAdapter: {e}")
-        cliente_repository_instance = None
+        grupo_produto_repository_instance = None
+
+    with app.app_context():
+        app.extensions['use_case'] = {}
+        #Grupo de casos de uso para clientes
+        app.extensions['use_case']['create_cliente'] = create_use_case_instance
+        app.extensions['use_case']['delete_cliente'] = delete_use_case_instance
+        app.extensions['use_case']['update_cliente'] = update_use_case_instance
+        app.extensions['use_case']['get_cliente'] = get_use_case_instance
+
+        #Grupo de casos de uso para pedidos
+        app.extensions['use_case']['create_pedido'] = create_pedido_use_case_instance
+        app.extensions['use_case']['delete_pedido'] = delete_pedido_use_case_instance
+        app.extensions['use_case']['update_pedido'] = update_pedido_use_case_instance
+        app.extensions['use_case']['get_pedido'] = get_pedido_use_case_instance
+
+        #Grupo de casos de uso para produtos
+        app.extensions['use_case']['create_produto'] = create_produto_use_case_instance
+        app.extensions['use_case']['delete_produto'] = delete_produto_use_case_instance
+        app.extensions['use_case']['update_produto'] = update_produto_use_case_instance
+        app.extensions['use_case']['get_produto'] = get_produto_use_case_instance
+
+        #Grupo de casos de uso para grupos de produtos
+        app.extensions['use_case']['create_grupo'] = create_grupo_use_case_instance
+        app.extensions['use_case']['delete_grupo'] = delete_grupo_use_case_instance
+        app.extensions['use_case']['update_grupo'] = update_grupo_use_case_instance
+        app.extensions['use_case']['get_grupo'] = get_grupo_use_case_instance
 
     return app
