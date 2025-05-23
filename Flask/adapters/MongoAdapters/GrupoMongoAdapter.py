@@ -14,15 +14,28 @@ class GrupoMongoAdapter:
     def __init__(self, str = "LutheriaFermino2"):
 
         self.db_name = str # Nome dob banco de dados
-        self.collection_name = "clientes" # Nome da coleção de clientes
+        self.collection_name = "grupo" # Nome da coleção de grupos
 
         # Cria um novo cliente MongoDB e se conecta com o servidor
-        client = MongoClient(uri, server_api=ServerApi('1'))
+        self.client = MongoClient(uri, server_api=ServerApi('1'))
 
-        # COnfirmando a conexão
-        try:
-            client.admin.command('ping')
-            return print("Conexão estabelecida com sucesso")
-        except Exception as e:
-            return print(e)
+    def get_grupo(self, id):
+        # Busca o grupo pelo ID
+        grupo = self.collection_name.find_one({"_id": ObjectId(id)})
+
+        return grupo
+    
+    def create_grupo(self, grupo):
+        #Insere um grupo no banco de dados
+        grupo = self.collection_name.insert_one(grupo)
+        return grupo
+    
+    def delete_grupo(self, id):
+        #Deleta um grupo do banco de dados
+        grupo = self.collection_name.delete_one({"_id": ObjectId(id)})
+        return grupo
         
+    def update_grupo(self, id, grupo):
+        #Atualiza um grupo no banco de dados
+        grupo = self.collection_name.update_one({"_id": ObjectId(id)}, {"$set": grupo})
+        return grupo

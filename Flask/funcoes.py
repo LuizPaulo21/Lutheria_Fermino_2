@@ -56,7 +56,7 @@ def login():
 
     return render_template('inicio.html', msg=msg)
 
-
+#Função para salvar o cliente no banco de dados
 @bp.route('/create_cliente', methods=['POST'])
 def create_cliente():
     # Verifica se o método da requisição é POST e se os campos necessários foram preenchidos
@@ -89,6 +89,7 @@ def create_cliente():
                 "bairro": bairro,  
                 "cidade": cidade,
                 "estado": estado, 
+                "tipoPessoaJuridica": ejuridica
             }
 
         # Validação mínima na rota (o Caso de Uso fará a validação completa)
@@ -122,3 +123,90 @@ def create_cliente():
     
     # Para o método GET (exibir o formulário) ou após o POST (para mostrar a msg)
     return render_template('cadastro_cliente.html', msg=msg)
+
+#Função de busca de clientes para o JS
+@bp.route('/cliente', methods=['GET'])
+def cliente():
+# Pega o termo de busca da query string
+    termo_busca = request.args.get('termo', '')
+
+    db_name = "LutheriaFermino2"
+    collection_name = "clientes"
+    
+    try:
+        client = MongoClient(uri, server_api=ServerApi('1'))
+        db = client[db_name]
+        collection = db[collection_name]
+
+        # Prepara a query para buscar clientes cujo 'nome_completo' contenha o termo_busca (case-insensitive)
+        # Se o termo_busca estiver vazio, pode retornar uma lista vazia ou os primeiros N clientes,
+        # dependendo do comportamento desejado. Aqui, retornaremos correspondências.
+        if termo_busca:
+            # Usando regex para busca "contém" e 'i' para case-insensitive
+            query = {"nome": {"$regex": termo_busca, "$options": "i"}}
+            resultados_cursor = collection.find(query).limit(10) 
+        else:
+            # Se nenhum termo for fornecido, retorna uma lista vazia
+            resultados_cursor = [] 
+
+        clientes_lista = []
+        for cliente in resultados_cursor:
+            # É importante converter ObjectId para string para ser serializável em JSON
+            cliente['_id'] = str(cliente['_id']) 
+            clientes_lista.append(cliente)
+        
+        client.close() # Fechar a conexão
+        return jsonify(clientes_lista)
+
+    except Exception as e:
+        print(f"Erro ao buscar clientes: {e}")
+
+#Função para salvar o pedido no banco de dados
+@bp.route('/create_pedido', methods=['POST'])
+def create_pedido():
+    # Verifica se o método da requisição é POST e se os campos necessários foram preenchidos
+    if request.method == 'POST':
+        # Obtém os dados do pedido do formulário
+        data_pedido = request.form.get('dataPedido')
+        cliente_id = request.form.get('cliente_id')
+        produto_id = request.form.get('produto_id')
+        tipo_pedido = request.form.get('tipoPedido')
+        prazo_Conserto = request.form.get('prazoConserto')
+        quantidade = request.form.get('quantidade')
+        valor_total = request.form.get('valor_total')
+
+        # Transforma os dados em um dicionário
+        pedido_data = {
+            "data_pedido": data_pedido,
+            "tipo_pedido": tipo_pedido,
+            "cliente_id": cliente_id,
+            "produto_id": produto_id,
+            "prazo_conserto": prazo_Conserto,
+            "quantidade": quantidade,
+            "valor_total": valor_total
+        }
+
+        create_pedido_uc = current_app.extensions['use_case'].get('create_pedido')
+
+        # Acessa o Caso de Uso
+        use_case_key = 'use_case'
+        if use_case_key not in current_app.extensions:
+            msg = "Erro crítico: Casos de uso não encontrado."
+            return render_template('cadastro_pedido.html', msg=msg)
+        else:
+            if not create_pedido_uc:
+                msg = "Erro: Serviço de criação de pedido indisponível."
+                return render_template('cadastro_pedido.html', msg=msg)
+            try:
+                novo_pedido = create_pedido_uc.execute(pedido_data)
+                if novo_pedido:
+                    msg = f"Pedido '{novo_pedido.get('id', 'N/A')}' cadastrado com sucesso!"
+                    return render_template('cadastro_pedido.html', msg=msg)
+                else:
+                    msg = "Erro ao cadastrar pedido. Verifique os dados ou os logs do servidor."
+                    return render_template('cadastro_pedido.html', msg=msg)
+            except ValueError as ve:
+                msg = f"Erro de validação: {ve}"
+                return render_template('cadastro_pedido.html', msg=msg)
+
+    

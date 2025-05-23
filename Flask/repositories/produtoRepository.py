@@ -15,5 +15,5 @@ class IprodutoRepository(ABC):
         pass
 
     @abstractmethod
-    def delete_produto(self, id: int) -> None:
+    def delete_produto(self, id: str) -> None:
         pass

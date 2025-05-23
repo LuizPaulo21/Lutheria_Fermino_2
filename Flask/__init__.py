@@ -84,7 +84,7 @@ def create_app(test_config=None):
         #Inicializando os adaptadores para produtos
     try:
         # ProdutoMongoAdapter que implementa a interface produtoRepository
-        produto_repository_instance: produtoRepository = ProdutoMongoAdapter()
+        produto_repository_instance: produtoRepository = ProdutoMongoAdapter(db_nome)
         create_produto_use_case_instance = CreateProdutoUseCase(produto_repository=produto_repository_instance)
         delete_produto_use_case_instance = DeleteProdutoUseCase(produto_repository=produto_repository_instance)
         update_produto_use_case_instance = UpdateProdutoUseCase(produto_repository=produto_repository_instance)
@@ -128,6 +128,13 @@ def create_app(test_config=None):
     except Exception as e:
         print(f"CRÍTICO: Erro inesperado ao instanciar ClienteMongoAdapter: {e}")
         grupo_produto_repository_instance = None
+
+    #Inicializando váriáveis para evitar erro de unbound
+    delete_produto_use_case_instance = None
+    update_produto_use_case_instance = None
+    get_produto_use_case_instance = None
+    create_produto_use_case_instance = None
+    
 
     with app.app_context():
         app.extensions['use_case'] = {}

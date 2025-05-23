@@ -21,12 +21,7 @@ class PedidosMongoAdapter:
         # Cria um novo cliente MongoDB e se conecta com o servidor
         client = MongoClient(uri, server_api=ServerApi('1'))
 
-        # COnfirmando a conexão
-        try:
-            client.admin.command('ping')
-            return print("Conexão estabelecida com sucesso")
-        except Exception as e:
-            return print(e)
+
 
     def create_pedido(self, pedido_data: Dict) -> Optional[Dict]:
 

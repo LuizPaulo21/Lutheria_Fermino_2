@@ -1,3 +1,5 @@
+from Flask.repositories import produtoRepository
+
 class GetProdutoUseCase:
     def __init__(self, produto_repository):
         self.produto_repository = produto_repository

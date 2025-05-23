@@ -100,15 +100,16 @@
         </header>
 
         <main>
-            <form id="formIncluirPedido" action="/cadastrar_pedido" method="POST" novalidate>
+            <form id="formIncluirPedido" action="/create_pedido" method="POST" novalidate>
                 <h5 class="form-section-title">Dados do Pedido</h5>
                 <div class="row">
                     <div class="col-md-7 mb-3 position-relative">
                         <label for="nomeCliente" class="form-label">Cliente <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nomeCliente" name="nomeCliente" placeholder="Digite para buscar o cliente..." autocomplete="off" required>
                         <input type="hidden" id="clienteId" name="clienteId">
-                        <div id="sugestoesCliente" class="list-group search-suggestions" style="display: none;"></div>
+                        <div id="sugestoesClientesDiv" class="list-group search-suggestions" style="display: none;"></div>
                     </div>
+                    <input type="hidden" id="clienteSelecionadoDataInput" name="cliente_selecionado_data">
                     <div class="col-md-5 mb-3">
                         <label for="dataPedido" class="form-label">Data do Pedido <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="dataPedido" name="dataPedido" required>
@@ -160,6 +161,7 @@
                 <hr class="my-4">
 
                 <div class="d-flex justify-content-end">
+                    <div>{{msg}}</div>
                     <button type="button" class="btn btn-outline-secondary me-2" onclick="window.location.href='index.html'">
                         <i class="bi bi-x-circle"></i> Cancelar
                     </button>
@@ -176,174 +178,10 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-
+    <script src="../static/sugestaocliente.js"></script>
+    <script src="../static/controleformulariopedidos.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // --- VALORES INICIAIS E UTILITÁRIOS ---
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('dataPedido').value = today;
-
-            const nomeClienteInput = document.getElementById('nomeCliente');
-            const clienteIdInput = document.getElementById('clienteId');
-            const sugestoesClienteDiv = document.getElementById('sugestoesCliente');
-
-            const nomeProdutoInput = document.getElementById('nomeProdutoServico');
-            const produtoIdInput = document.getElementById('produtoId');
-            const sugestoesProdutoDiv = document.getElementById('sugestoesProduto');
-            const valorUnitarioInput = document.getElementById('valorUnitario');
-
-            const quantidadeInput = document.getElementById('quantidade');
-            const valorTotalItemInput = document.getElementById('valorTotalItem');
-
-            const tipoConsertoRadio = document.getElementById('tipoConserto');
-            const tipoCompraRadio = document.getElementById('tipoCompra');
-            const campoPrazoConsertoDiv = document.getElementById('campoPrazoConserto');
-            const prazoConsertoInput = document.getElementById('prazoConserto');
-
-            // --- DADOS MOCADOS (SIMULAÇÃO DE BANCO DE DADOS) ---
-            const clientesMock = [
-                { id: 1, nome: 'João da Silva Musico (CPF: 123.456.789-00)', infoAdicional: 'Cliente VIP' },
-                { id: 2, nome: 'Maria Oliveira Cantora (CPF: 987.654.321-00)', infoAdicional: 'Prefere contato por email' },
-                { id: 3, nome: 'Estúdio GravaSom Ltda (CNPJ: 12.345.678/0001-99)', infoAdicional: 'Pagamento faturado' },
-                { id: 4, nome: 'Pedro Almeida Guitarrista (CPF: 111.222.333-44)', infoAdicional: 'Indicado por João' }
-            ];
-
-            const produtosMock = [
-                { id: 101, nome: 'Regulagem Completa de Guitarra', valor: 150.00, tipo: 'servico' },
-                { id: 102, nome: 'Troca de Trastes (Violão/Guitarra)', valor: 350.00, tipo: 'servico' },
-                { id: 103, nome: 'Conserto Circuito Elétrico', valor: 120.00, tipo: 'servico' },
-                { id: 201, nome: 'Jogo de Cordas D\'Addario EXL110 (Guitarra)', valor: 65.00, tipo: 'produto' },
-                { id: 202, nome: 'Cabo P10 Santo Angelo Ninja 3m', valor: 89.00, tipo: 'produto' },
-                { id: 203, nome: 'Palheta Dunlop Tortex 0.73mm (Unidade)', valor: 3.50, tipo: 'produto' }
-            ];
-
-            // --- FUNÇÕES DE BUSCA E AUTOCOMPLETE ---
-            function popularSugestoes(termo, dados, inputElement, idElement, divSugestoes, callbackSelecao) {
-                divSugestoes.innerHTML = '';
-                if (termo.length < 2) {
-                    divSugestoes.style.display = 'none';
-                    idElement.value = ''; // Limpa o ID se o termo for muito curto
-                    if (inputElement === nomeProdutoInput) valorUnitarioInput.value = ''; // Limpa valor unitário
-                    calcularValorTotalItem();
-                    return;
-                }
-
-                const filtrados = dados.filter(item => item.nome.toLowerCase().includes(termo.toLowerCase()));
-
-                if (filtrados.length > 0) {
-                    divSugestoes.style.display = 'block';
-                    filtrados.forEach(item => {
-                        const itemDiv = document.createElement('a');
-                        itemDiv.href = '#';
-                        itemDiv.classList.add('list-group-item', 'list-group-item-action');
-                        itemDiv.textContent = item.nome + (item.infoAdicional ? ` (${item.infoAdicional})` : '');
-                        itemDiv.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            inputElement.value = item.nome;
-                            idElement.value = item.id;
-                            divSugestoes.innerHTML = '';
-                            divSugestoes.style.display = 'none';
-                            if (callbackSelecao) {
-                                callbackSelecao(item);
-                            }
-                            // Força validação para remover erro de 'required' se houver
-                            inputElement.dispatchEvent(new Event('input'));
-                            inputElement.dispatchEvent(new Event('blur')); // para fechar e validar
-                        });
-                        divSugestoes.appendChild(itemDiv);
-                    });
-                } else {
-                    divSugestoes.style.display = 'none';
-                    idElement.value = '';
-                     if (inputElement === nomeProdutoInput) valorUnitarioInput.value = '';
-                    calcularValorTotalItem();
-                }
-            }
-
-            nomeClienteInput.addEventListener('keyup', function() {
-                popularSugestoes(this.value, clientesMock, nomeClienteInput, clienteIdInput, sugestoesClienteDiv);
-            });
-            nomeClienteInput.addEventListener('blur', function() { // Se sair do campo sem selecionar, limpa ID se nome não corresponder
-                setTimeout(() => { // Timeout para permitir clique na sugestão
-                    const clienteEncontrado = clientesMock.find(c => c.nome === this.value);
-                    if (!clienteEncontrado) {
-                        clienteIdInput.value = '';
-                        // Opcional: limpar o campo nomeClienteInput.value = ''; se desejar forçar seleção
-                    }
-                    if (sugestoesClienteDiv.style.display !== 'none' && !sugestoesClienteDiv.matches(':hover')) {
-                         sugestoesClienteDiv.style.display = 'none';
-                    }
-                }, 200);
-            });
-
-
-            nomeProdutoInput.addEventListener('keyup', function() {
-                popularSugestoes(this.value, produtosMock, nomeProdutoInput, produtoIdInput, sugestoesProdutoDiv, function(produtoSelecionado) {
-                    if (produtoSelecionado && produtoSelecionado.valor) {
-                        valorUnitarioInput.value = produtoSelecionado.valor.toFixed(2);
-                    } else {
-                        valorUnitarioInput.value = ''; // Limpa se o produto não tiver valor definido
-                    }
-                    calcularValorTotalItem();
-                    valorUnitarioInput.dispatchEvent(new Event('input')); // Para atualizar a validação
-                });
-            });
-             nomeProdutoInput.addEventListener('blur', function() {
-                setTimeout(() => {
-                    const produtoEncontrado = produtosMock.find(p => p.nome === this.value);
-                    if (!produtoEncontrado) {
-                        produtoIdInput.value = '';
-                        valorUnitarioInput.value = '';
-                    } else if (produtoEncontrado && valorUnitarioInput.value === '') { // Se selecionou mas valor unitário está vazio
-                         if (produtoEncontrado.valor) {
-                            valorUnitarioInput.value = produtoEncontrado.valor.toFixed(2);
-                        }
-                    }
-                    calcularValorTotalItem();
-                    if (sugestoesProdutoDiv.style.display !== 'none' && !sugestoesProdutoDiv.matches(':hover')) {
-                         sugestoesProdutoDiv.style.display = 'none';
-                    }
-                }, 200);
-            });
-
-            // Fechar sugestões se clicar fora
-            document.addEventListener('click', function(e) {
-                if (!sugestoesClienteDiv.contains(e.target) && e.target !== nomeClienteInput) {
-                    sugestoesClienteDiv.style.display = 'none';
-                }
-                if (!sugestoesProdutoDiv.contains(e.target) && e.target !== nomeProdutoInput) {
-                    sugestoesProdutoDiv.style.display = 'none';
-                }
-            });
-
-
-            // --- CÁLCULO DO VALOR TOTAL DO ITEM ---
-            function calcularValorTotalItem() {
-                const quantidade = parseFloat(quantidadeInput.value) || 0;
-                const valorUnitario = parseFloat(valorUnitarioInput.value) || 0;
-                const total = quantidade * valorUnitario;
-                valorTotalItemInput.value = total.toFixed(2).replace('.', ',');
-            }
-            quantidadeInput.addEventListener('input', calcularValorTotalItem);
-            valorUnitarioInput.addEventListener('input', calcularValorTotalItem);
-
-            // --- CONTROLE DO CAMPO PRAZO ---
-            function togglePrazoConserto() {
-                if (tipoConsertoRadio.checked) {
-                    campoPrazoConsertoDiv.style.display = 'block';
-                    prazoConsertoInput.setAttribute('required', 'required');
-                } else {
-                    campoPrazoConsertoDiv.style.display = 'none';
-                    prazoConsertoInput.removeAttribute('required');
-                    prazoConsertoInput.value = ''; // Limpa o valor se não for conserto
-                }
-            }
-            tipoConsertoRadio.addEventListener('change', togglePrazoConserto);
-            tipoCompraRadio.addEventListener('change', togglePrazoConserto);
-            togglePrazoConserto(); // Chama na inicialização
-
             // --- SUBMISSÃO DO FORMULÁRIO ---
-            const formIncluirPedido = document.getElementById('formIncluirPedido');
             formIncluirPedido.addEventListener('submit', function(event) {
                 if (!formIncluirPedido.checkValidity()) {
                     event.preventDefault();
@@ -375,8 +213,6 @@
                 nomeProdutoInput.setCustomValidity("");
                 formIncluirPedido.classList.add('was-validated');
 
-
-                event.preventDefault(); // Previne o envio real para simulação
                 const formData = new FormData(formIncluirPedido);
                 const data = {};
                 formData.forEach((value, key) => {
@@ -397,37 +233,18 @@
                 }
 
                 console.log('Dados do Pedido a serem enviados:', data);
-                alert('Pedido salvo com sucesso! (Verifique o console para os dados)');
 
-                // Resetar o formulário (opcional)
-                // formIncluirPedido.reset();
-                // formIncluirPedido.classList.remove('was-validated');
-                // document.getElementById('dataPedido').value = today;
-                // togglePrazoConserto();
-                // calcularValorTotalItem();
-                // clienteIdInput.value = '';
-                // produtoIdInput.value = '';
-                // valorUnitarioInput.value = '';
+                //Resetar o formulário (opcional)
+                formIncluirPedido.reset();
+                formIncluirPedido.classList.remove('was-validated');
+                document.getElementById('dataPedido').value = today;
+                togglePrazoConserto();
+                calcularValorTotalItem();
+                clienteIdInput.value = '';
+                produtoIdInput.value = '';
+                valorUnitarioInput.value = '';
             });
 
-            // Limpar validade customizada ao digitar
-            nomeClienteInput.addEventListener('input', () => {
-                nomeClienteInput.setCustomValidity('');
-                nomeClienteInput.classList.remove('is-invalid');
-            });
-            nomeProdutoInput.addEventListener('input', () => {
-                nomeProdutoInput.setCustomValidity('');
-                nomeProdutoInput.classList.remove('is-invalid');
-                 // Limpa valor unitário se o nome do produto for alterado manualmente
-                if(!produtosMock.find(p => p.nome === nomeProdutoInput.value)) {
-                    valorUnitarioInput.value = '';
-                    produtoIdInput.value = ''; // Limpa ID também
-                    calcularValorTotalItem();
-                }
-            });
-
-
-        });
     </script>
 </body>
 </html>

@@ -19,14 +19,7 @@ class ClienteMongoAdapter:
         # Cria um novo cliente MongoDB e se conecta com o servidor
         self.client = MongoClient(uri, server_api=ServerApi('1'))
 
-        # COnfirmando a conexão
-        try:
-            self.client.admin.command('ping')
-            print("Conexão estabelecida com sucesso")
-            return None
-        except Exception as e:
-            print(e)
-            return None
+
         
   #Função para buscar um cliente pelo ID      
     def get_cliente(self, id: str) -> dict:
@@ -129,7 +122,7 @@ class ClienteMongoAdapter:
                 # Buscar e retornar o documento atualizado
                 return self.get_cliente(idObjetoaAtualizar) # chama o get_cliente para retornar o documento atualizado
 
-
+    # Função para deletar um cliente
     def delete_cliente(self, id: int) -> None:
 
         if not self.client:

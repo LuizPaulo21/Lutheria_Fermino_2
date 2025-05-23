@@ -1,3 +1,5 @@
+from Flask.repositories import produtoRepository
+
 class UpdateProdutoUseCase:
     def __init__(self, produto_repository):
         self.produto_repository = produto_repository
