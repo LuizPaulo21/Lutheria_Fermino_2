@@ -6,21 +6,6 @@
             const nomeClienteInput = document.getElementById('nomeCliente');
             const clienteIdInput = document.getElementById('clienteId');
             const sugestoesClientesDiv = document.getElementById('sugestoesClientesDiv');
-
-            const nomeProdutoInput = document.getElementById('nomeProdutoServico');
-            const produtoIdInput = document.getElementById('produtoId');
-            const sugestoesProdutoDiv = document.getElementById('sugestoesProduto');
-            const valorUnitarioInput = document.getElementById('valorUnitario');
-
-            const quantidadeInput = document.getElementById('quantidade');
-            const valorTotalItemInput = document.getElementById('valorTotalItem');
-
-            const tipoConsertoRadio = document.getElementById('tipoConserto');
-            const tipoCompraRadio = document.getElementById('tipoCompra');
-            const campoPrazoConsertoDiv = document.getElementById('campoPrazoConserto');
-            const prazoConsertoInput = document.getElementById('prazoConserto');
-
-            const formIncluirPedido = document.getElementById('formIncluirPedido');
             const clienteSelecionadoDataInput = document.getElementById('clienteSelecionadoDataInput');
 
             let debounceTimer;
@@ -68,9 +53,8 @@
             itemLink.href = "#"; // Para comportamento de link
             itemLink.classList.add('list-group-item', 'list-group-item-action'); // Classes Bootstrap
             
-            // Assumindo que sua API retorna 'nome_completo' e '_id'
-            // Se sua API retorna 'nome', use cliente.nome aqui.
-            itemLink.textContent = `${cliente.nome_completo || cliente.nome} (ID: ${cliente._id})`; 
+            // Propriedades retornadas pela API
+            itemLink.textContent = `${cliente.nome} (ID: ${cliente._id})`; 
             
             itemLink.dataset.clienteData = JSON.stringify(cliente);
 
@@ -80,8 +64,7 @@
                 const clienteSelecionado = JSON.parse(clienteDataString);
 
                 // Preencher o input visível
-                // Use a propriedade correta retornada pela API ('nome_completo' ou 'nome')
-                nomeClienteInput.value = clienteSelecionado.nome_completo || clienteSelecionado.nome; 
+                nomeClienteInput.value = clienteSelecionado.nome; 
                 
                 // Preencher o campo oculto com o ID do cliente
                 clienteIdInput.value = clienteSelecionado._id; 
@@ -102,8 +85,5 @@
             document.addEventListener('click', function(e) {
                 if (!sugestoesClientesDiv.contains(e.target) && e.target !== nomeClienteInput) {
                     sugestoesClientesDiv.style.display = 'none';
-                }
-                if (!sugestoesProdutoDiv.contains(e.target) && e.target !== nomeProdutoInput) {
-                    sugestoesProdutoDiv.style.display = 'none';
                 }
             });});

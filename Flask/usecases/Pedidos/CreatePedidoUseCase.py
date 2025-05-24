@@ -5,12 +5,11 @@ class CreatePedidoUseCase:
         self.pedido_repository = pedido_repository
 
     def execute(self, pedido_data):
-        print(pedido_data)
         if pedido_data is None:
             mensagem = "Erro: Dados do pedido não podem ser nulos."
             return render_template('cadastro_pedido.html', msg=mensagem)
         # Se for um pedido de conserto, chama o método create do pedido_repository
-        elif pedido_data.tipo_pedido == "conserto":
+        elif pedido_data:
             self.pedido_repository.create_pedido(pedido_data)
         # Se for um pedido de venda, chama o método create do pedido_repository, sem passar o prazo de conserto
         else:

@@ -19,22 +19,22 @@ class PedidosMongoAdapter:
         self.collection_name = "pedidos" # Nome da coleção de clientes
 
         # Cria um novo cliente MongoDB e se conecta com o servidor
-        client = MongoClient(uri, server_api=ServerApi('1'))
-
-
+        self.client = MongoClient(uri, server_api=ServerApi('1'))
 
     def create_pedido(self, pedido_data: Dict) -> Optional[Dict]:
 
         if not self.client:
             print("Erro de conexão com o banco de dados. Não é possível criar o pedido.")
             return None
+        else:
+            db = self.client[self.db_name]
+            collection = db[self.collection_name]
 
         if not pedido_data:
             print("Dados do pedido não fornecidos para criação.")
             return None
+        
 
-        db = self.client[self.db_name]
-        collection = db[self.collection_name]
 
         dados_para_inserir = pedido_data.copy() # Uma cópia dosdados para evitar mutações indesejadas
 

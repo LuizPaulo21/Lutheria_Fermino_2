@@ -161,52 +161,99 @@ def cliente():
     except Exception as e:
         print(f"Erro ao buscar clientes: {e}")
 
+#Função de busca de clientes para o JS
+@bp.route('/produto', methods=['GET'])
+def produto():
+# Pega o termo de busca da query string
+    termo_busca = request.args.get('termo', '')
+
+    db_name = "LutheriaFermino2"
+    collection_name = "produtos"
+    
+    try:
+        client = MongoClient(uri, server_api=ServerApi('1'))
+        db = client[db_name]
+        collection = db[collection_name]
+
+        # Prepara a query para buscar produtos cujo 'nome' contenha o termo_busca (case-insensitive)
+        # Se o termo_busca estiver vazio, pode retornar uma lista vazia ou os primeiros N produtos,
+        if termo_busca:
+            # Usando regex para busca "contém" e 'i' para case-insensitive
+            query = {"nome": {"$regex": termo_busca, "$options": "i"}}
+            resultados_cursor = collection.find(query).limit(10) 
+        else:
+            # Se nenhum termo for fornecido, retorna uma lista vazia
+            resultados_cursor = [] 
+
+        produtos_lista = []
+        for produto in resultados_cursor:
+            # É importante converter ObjectId para string para ser serializável em JSON
+            produto['_id'] = str(produto['_id']) 
+            produtos_lista.append(produto)
+        
+        client.close() # Fechar a conexão
+        return jsonify(produtos_lista)
+
+    except Exception as e:
+        print(f"Erro ao buscar produtos: {e}")
+        return jsonify({"error": "Erro ao buscar produtos."})
+
+
 #Função para salvar o pedido no banco de dados
 @bp.route('/create_pedido', methods=['POST'])
 def create_pedido():
     # Verifica se o método da requisição é POST e se os campos necessários foram preenchidos
-    if request.method == 'POST':
-        # Obtém os dados do pedido do formulário
-        data_pedido = request.form.get('dataPedido')
-        cliente_id = request.form.get('cliente_id')
-        produto_id = request.form.get('produto_id')
-        tipo_pedido = request.form.get('tipoPedido')
-        prazo_Conserto = request.form.get('prazoConserto')
-        quantidade = request.form.get('quantidade')
-        valor_total = request.form.get('valor_total')
+    #if request.method == 'POST':
+        # # Obtém os dados do pedido do formulário
+        # data_pedido = request.form.get('dataPedido')
+        # cliente_id = request.form.get('clienteId')
+        # produto_id = request.form.get('produto_id')
+        # tipo_pedido = request.form.get('tipoPedido')
+        # prazo_Conserto = request.form.get('prazoConserto')
+        # quantidade = request.form.get('quantidade')
+        # valor_total = request.form.get('valorTotalItem')
 
-        # Transforma os dados em um dicionário
-        pedido_data = {
-            "data_pedido": data_pedido,
-            "tipo_pedido": tipo_pedido,
-            "cliente_id": cliente_id,
-            "produto_id": produto_id,
-            "prazo_conserto": prazo_Conserto,
-            "quantidade": quantidade,
-            "valor_total": valor_total
-        }
+        # print(data_pedido)
+        # # Transforma os dados em um dicionário
+        # pedido_data = {
+        #     "data_pedido": data_pedido,
+        #     "tipo_pedido": tipo_pedido,
+        #     "cliente_id": cliente_id,
+        #     "produto_id": produto_id,
+        #     "prazo_conserto": prazo_Conserto,
+        #     "quantidade": quantidade,
+        #     "valor_total": valor_total
+        # }
+    
+        if request.is_json:
+            dados_recebidos = request.get_json()
+            print("Dados recebidos (JSON):", dados_recebidos)
+        else:
+            dados_recebidos = request.form.to_dict() # .to_dict() para melhor visualização
+            print("Dados recebidos (Form):", dados_recebidos)
+  
 
         create_pedido_uc = current_app.extensions['use_case'].get('create_pedido')
 
         # Acessa o Caso de Uso
         use_case_key = 'use_case'
         if use_case_key not in current_app.extensions:
-            msg = "Erro crítico: Casos de uso não encontrado."
-            return render_template('cadastro_pedido.html', msg=msg)
+             msg = "Erro crítico: Casos de uso não encontrado."
+             return render_template('cadastro_pedido.html', msg=msg)
         else:
-            if not create_pedido_uc:
-                msg = "Erro: Serviço de criação de pedido indisponível."
-                return render_template('cadastro_pedido.html', msg=msg)
-            try:
-                novo_pedido = create_pedido_uc.execute(pedido_data)
-                if novo_pedido:
-                    msg = f"Pedido '{novo_pedido.get('id', 'N/A')}' cadastrado com sucesso!"
-                    return render_template('cadastro_pedido.html', msg=msg)
-                else:
-                    msg = "Erro ao cadastrar pedido. Verifique os dados ou os logs do servidor."
-                    return render_template('cadastro_pedido.html', msg=msg)
-            except ValueError as ve:
-                msg = f"Erro de validação: {ve}"
-                return render_template('cadastro_pedido.html', msg=msg)
+             if not create_pedido_uc:
+                 msg = "Erro: Serviço de criação de pedido indisponível."
+                 return render_template('cadastro_pedido.html', msg=msg)
+             try:
+                 novo_pedido = create_pedido_uc.execute(dados_recebidos)
+                 if novo_pedido:
+                     msg = f"Pedido '{novo_pedido.get('id', 'N/A')}' cadastrado com sucesso!"
+                     return render_template('cadastro_pedido.html', msg=msg)
+                 else:
+                     msg = "Erro ao cadastrar pedido. Verifique os dados ou os logs do servidor."
+                     return render_template('cadastro_pedido.html', msg=msg)
+             except ValueError as ve:
+                 msg = f"Erro de validação: {ve}"
+                 return render_template('cadastro_pedido.html', msg=msg)
 
     

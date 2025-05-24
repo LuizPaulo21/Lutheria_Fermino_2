@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
-            padding-top: 56px; /* Ajuste para a navbar fixa */
+            padding-top: 56px; 
         }
         .navbar-brand {
             font-weight: bold;
@@ -22,7 +22,7 @@
             border-bottom: 1px solid #dee2e6;
             padding-bottom: 0.5rem;
         }
-        /* Para campos de 'apenas leitura' parecerem um pouco diferentes */
+        
         input[readonly] {
             background-color: #e9ecef;
             opacity: 1;
@@ -33,7 +33,7 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="/inicio.html">
                 <i class="bi bi-hammer"></i> Lutheria Fermino 2.0
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,6 +106,7 @@
                     <div class="col-md-7 mb-3 position-relative">
                         <label for="nomeCliente" class="form-label">Cliente <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nomeCliente" name="nomeCliente" placeholder="Digite para buscar o cliente..." autocomplete="off" required>
+                        <!-- Campo Oculto para sugestão de clientes. -->
                         <input type="hidden" id="clienteId" name="clienteId">
                         <div id="sugestoesClientesDiv" class="list-group search-suggestions" style="display: none;"></div>
                     </div>
@@ -142,9 +143,11 @@
                     <div class="col-md-5 mb-3 position-relative">
                         <label for="nomeProdutoServico" class="form-label">Produto/Serviço <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nomeProdutoServico" name="nomeProdutoServico" placeholder="Digite para buscar o produto/serviço..." autocomplete="off" required>
+                        <!-- Campo Oculto para sugestão de produtos. -->
                         <input type="hidden" id="produtoId" name="produtoId">
                         <div id="sugestoesProduto" class="list-group search-suggestions" style="display: none;"></div>
                     </div>
+                    <input type="hidden" id="produtoSelecionadoDataInput" name="produto_selecionado_data">
                     <div class="col-md-2 mb-3">
                         <label for="quantidade" class="form-label">Quantidade <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" id="quantidade" name="quantidade" value="1" min="1" required>
@@ -180,71 +183,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="../static/sugestaocliente.js"></script>
     <script src="../static/controleformulariopedidos.js"></script>
-    <script>
-            // --- SUBMISSÃO DO FORMULÁRIO ---
-            formIncluirPedido.addEventListener('submit', function(event) {
-                if (!formIncluirPedido.checkValidity()) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    // Força a exibição de mensagens de erro do Bootstrap
-                    formIncluirPedido.classList.add('was-validated');
-                    // Verifica se os campos de busca têm IDs válidos
-                    if (!clienteIdInput.value) {
-                        nomeClienteInput.setCustomValidity("Por favor, selecione um cliente da lista.");
-                        nomeClienteInput.classList.add('is-invalid');
-                    } else {
-                        nomeClienteInput.setCustomValidity("");
-                        nomeClienteInput.classList.remove('is-invalid');
-                    }
-                    if (!produtoIdInput.value) {
-                        nomeProdutoInput.setCustomValidity("Por favor, selecione um produto/serviço da lista.");
-                        nomeProdutoInput.classList.add('is-invalid');
-                    } else {
-                        nomeProdutoInput.setCustomValidity("");
-                        nomeProdutoInput.classList.remove('is-invalid');
-                    }
-                    // Adiciona a classe was-validated para mostrar feedback visual
-                    formIncluirPedido.classList.add('was-validated');
-                     alert('Por favor, corrija os erros no formulário antes de salvar.');
-                    return;
-                }
-                // Se passou na validação HTML5 e campos de busca estão OK
-                nomeClienteInput.setCustomValidity("");
-                nomeProdutoInput.setCustomValidity("");
-                formIncluirPedido.classList.add('was-validated');
+    <script src="../static/sugestaoproduto.js"></script>
 
-                const formData = new FormData(formIncluirPedido);
-                const data = {};
-                formData.forEach((value, key) => {
-                    data[key] = value;
-                });
-
-                // Garante que IDs estão corretos
-                data['clienteId'] = clienteIdInput.value;
-                data['produtoId'] = produtoIdInput.value;
-
-
-                // Converte valores numéricos
-                data['quantidade'] = parseFloat(data['quantidade']);
-                data['valorUnitario'] = parseFloat(data['valorUnitario'] ? data['valorUnitario'].replace(',', '.') : 0);
-                data['valorTotalItem'] = parseFloat(data['valorTotalItem'] ? data['valorTotalItem'].replace(',', '.') : 0);
-                if (data.tipoPedido !== 'conserto') {
-                    delete data.prazoConserto; // Remove prazo se não for conserto
-                }
-
-                console.log('Dados do Pedido a serem enviados:', data);
-
-                //Resetar o formulário (opcional)
-                formIncluirPedido.reset();
-                formIncluirPedido.classList.remove('was-validated');
-                document.getElementById('dataPedido').value = today;
-                togglePrazoConserto();
-                calcularValorTotalItem();
-                clienteIdInput.value = '';
-                produtoIdInput.value = '';
-                valorUnitarioInput.value = '';
-            });
-
-    </script>
 </body>
 </html>
